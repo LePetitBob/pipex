@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/02 19:39:26 by vduriez           #+#    #+#             */
-/*   Updated: 2021/11/29 10:29:20 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/11/30 19:01:56 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ int	main(void)
 			close(pipefd[0]);
 			close(pipefd[1]);
 			close(fd_in);
-			execve()
 			exit(0); // sortie du programme enfant;
 		}
 		// pid parent;
@@ -54,10 +53,3 @@ int	main(void)
 		wait(NULL);
 	return (0);
 }
-/*
-*/
-
-/*
-if (access(path, F_OK) == 0)
-	return (path);
-*/
