@@ -6,38 +6,52 @@
 #    By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/23 15:42:36 by vduriez           #+#    #+#              #
-#    Updated: 2021/11/29 02:51:48 by vduriez          ###   ########.fr        #
+#    Updated: 2021/12/05 10:37:17 by vduriez          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-CC = gcc
+CC = clang
 
 FLAGS = -Wall -Wextra -Werror
 
 NAME = pipex
 
-INCLUDES = pipex.h
+NAME_BONUS = pipex_bonus
+
+INCLUDES = include/pipex.h
 
 FSANITIZE = -fsanitize=address
 
-SRCS =			ft_split.c				\
-				ft_strjoin.c			\
-				ft_strnstr.c			\
-				main.c
+SRCS =			mandatory/ft_split.c			\
+				mandatory/ft_strjoin.c			\
+				mandatory/ft_strnstr.c			\
+				mandatory/main.c
+
+SRCS_BONUS =	bonus/ft_split.c			\
+				bonus/ft_strjoin.c			\
+				bonus/ft_strnstr.c			\
+				bonus/main_bonus.c
 
 OBJ = $(SRCS:.c=.o)
+
+OBJ_BONUS = $(SRCS_BONUS:.c=.o)
 
 all:		$(NAME)
 
 $(NAME):	$(INCLUDES) $(OBJ)
 		$(CC) $(FLAGS) $(OBJ) -o $(NAME)
 
+bonus:		$(NAME_BONUS)
+
+$(NAME_BONUS):	$(INCLUDES) $(OBJ_BONUS)
+		$(CC) $(FLAGS) $(OBJ_BONUS) -o $(NAME_BONUS)
+
 fsanitize:	$(FSANITIZE)
 
-$(FSANITIZE):	$(INCLUDES) $(OBJ) $(BONUS_OBJ)
+$(FSANITIZE):	$(INCLUDES) $(OBJ) $(OBJ_BONUS)
 		$(CC) $(FLAGS) $(FSANITIZE) $(OBJ) -o $(NAME)
 clean:
-		rm -rf $(OBJ) $(BONUS_OBJ)
+		rm -rf $(OBJ) $(OBJ_BONUS)
 
 fclean: clean
 		rm -rf $(NAME) $(NAME_BONUS)
