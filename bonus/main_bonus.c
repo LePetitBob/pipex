@@ -36,37 +36,33 @@ void	ft_exec(char *cmd, char **envp)
 	}
 }
 
-//void	child_process(char **av, int *i, int *fd, char **envp)
-//{
-//	int	fdi;
+// void	child_process(char **av, int *i, int *fd, char **envp)
+// {
+// 	int	fdi;
 
-//	if (i[0] == 0)
-//	{
-//		fdi = open(av[1], O_RDONLY);
-//		dup2(fdi, 0);
-//		dup2(fd[1 + 2 * i[0]], 1);
-//		close(fd[0 + 2 * i[0]]);
-//		close(fd[1 + 2 * i[0]]);
-//		close(fdi);
-//	}
-//	else if (i[0] == i[1] - 4)
-//	{
-//		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-//		dup2(fd[0 + 2 * i[0]], 0);
-//		dup2(fdi, 1);
-//		close(fd[0 + 2 * i[0]]);
-//		close(fd[1 + 2 * i[0]]);
-//		close(fdi);
-//	}
-//	else
-//	{
-//		dup2(fd[2 * i[0]], 0);
-//		dup2(fd[1 + 2 * i[0]], 1);
-//		close(fd[2 * i[0]]);
-//		close(fd[1 + 2 * i[0]]);
-//	}
-//	ft_exec(av[i[0] + 2], envp);
-//}
+// 	if (i[0] == 0)
+// 	{
+// 		fdi = open(av[1], O_RDONLY);
+// 		dup2(fdi, 0);
+// 		dup2(fd[1 + 2 * i[0]], 1);
+// 		close(fdi);
+// 	}
+// 	else if (i[0] == i[1] - 4)
+// 	{
+// 		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+// 		dup2(fd[0 + 2 * i[0]], 0);
+// 		dup2(fdi, 1);
+// 		close(fdi);
+// 	}
+// 	else
+// 	{
+// 		dup2(fd[2 * i[0]], 0);
+// 		dup2(fd[1 + 2 * i[0]], 1);
+// 	}
+// 	close(fd[0 + 2 * i[0]]);
+// 	close(fd[1 + 2 * i[0]]);
+// 	ft_exec(av[i[0] + 2], envp);
+// }
 
 void	ft_dup2(int fd1, int fd2)
 {
@@ -84,39 +80,36 @@ void	child_process(char **av, int *i, int *fd, char **envp)
 {
 	int	fdi;
 
-	dprintf(2, "i = %d\n", i[0]);
 	if (i[0] == 0)
 	{
-		//dprintf(2, "first\n");
 		fdi = open(av[1], O_RDONLY);
-		//ft_dup2(fdi, fd[1]);
 		dup2(fdi, STDIN_FILENO);
 		dup2(fd[1], STDOUT_FILENO);
+		close(fdi);
 	}
 	else if (i[0] == i[1] - 4)
 	{
-		//dprintf(2, "last\n");
 		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		//ft_dup2(fd[0], fdi);
-		dup2(fdi, STDOUT_FILENO);
 		dup2(fd[0], STDIN_FILENO);
+		dup2(fdi, STDOUT_FILENO);
 	}
 	else
 	{
 		dup2(fd[0], STDIN_FILENO);
 		dup2(fd[1], STDOUT_FILENO);
+		close(fdi);
 	}
 	close(fd[1]);
 	close(fd[0]);
-	close(fdi);
 	ft_exec(av[i[0] + 2], envp);
+	exit(0);
 }
 
 int	main(int ac, char **av, char **envp)
 {
-	int		fd[2 * (ac - 4) - 1];
-	pid_t	pid[2];//!
-	//pid_t	pid[ac - 3];
+	int		fd[2];
+	// int		fd[2 * (ac - 4)];
+	pid_t	pid[2];
 	int		i[2];
 	int		ret;
 
@@ -124,11 +117,14 @@ int	main(int ac, char **av, char **envp)
 		return (0);
 	i[0] = -1;
 	i[1] = ac;
-	while (++i[0] < ac - 3)
+	if (pipe(fd) < 0)
+		exit(1);
+	while (++i[0] < (ac - 3))
 	{
-		if (pipe(fd) < 0)
-			exit(1);
-		printf("i[0] = %d\n", i[0]);
+		// if (pipe(fd + (2 * i[0])) < 0)
+		// 	exit(1);
+		// if (pipe(fd) < 0)
+		// 	exit(1);
 		pid[i[0]] = fork();
 		if (pid[i[0]] < 0)
 			exit(1);
@@ -136,10 +132,12 @@ int	main(int ac, char **av, char **envp)
 			child_process(av, i, fd, envp);
 	}
 	i[0] = -1;
+	// while (++i[0] < 2 * (ac - 4))
+	while (++i[0] < ac - 3)
+		close(fd[i[0]]);
+	i[0] = -1;
 	while (++i[0] < ac - 3)
 		waitpid(pid[i[0]], &ret, 0);
-	close(fd[1]);
-	close(fd[0]);
 	return (0);
 }
 
