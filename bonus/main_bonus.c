@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/06 10:22:46 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/12/13 19:31:23 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,23 +92,26 @@ void	child_process(char **av, int *i, int *fd, char **envp)
 		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		dup2(fd[0], STDIN_FILENO);
 		dup2(fdi, STDOUT_FILENO);
+		close(fdi);
 	}
 	else
 	{
-		dup2(fd[0], STDIN_FILENO);
-		dup2(fd[1], STDOUT_FILENO);
-		close(fdi);
+		if (i[0] % 2 != 0)
+			fdi = 2;
+		dup2(fd[0 + fdi], STDIN_FILENO);
+		dup2(fd[3 - fdi], STDOUT_FILENO);
 	}
 	close(fd[1]);
 	close(fd[0]);
+	close(fd[2]);
+	close(fd[3]);
 	ft_exec(av[i[0] + 2], envp);
 	exit(0);
 }
 
 int	main(int ac, char **av, char **envp)
 {
-	int		fd[2];
-	// int		fd[2 * (ac - 4)];
+	int		fd[4];
 	pid_t	pid[2];
 	int		i[2];
 	int		ret;
@@ -119,22 +122,27 @@ int	main(int ac, char **av, char **envp)
 	i[1] = ac;
 	if (pipe(fd) < 0)
 		exit(1);
+	if (pipe(fd + 2) < 0)
+		exit(1);
 	while (++i[0] < (ac - 3))
 	{
-		// if (pipe(fd + (2 * i[0])) < 0)
-		// 	exit(1);
 		// if (pipe(fd) < 0)
+		// 	exit(1);
+		// if (pipe(fd2) < 0)
 		// 	exit(1);
 		pid[i[0]] = fork();
 		if (pid[i[0]] < 0)
 			exit(1);
 		if (!pid[i[0]])
 			child_process(av, i, fd, envp);
+		//close(fd[0]);
+		//close(fd[1]);
 	}
 	i[0] = -1;
-	// while (++i[0] < 2 * (ac - 4))
-	while (++i[0] < ac - 3)
+	while (++i[0] < 4)
 		close(fd[i[0]]);
+	//close(fd[0]);
+	//close(fd[1]);
 	i[0] = -1;
 	while (++i[0] < ac - 3)
 		waitpid(pid[i[0]], &ret, 0);
