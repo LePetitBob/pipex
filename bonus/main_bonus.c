@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/13 19:31:23 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/12/16 17:04:48 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,53 +31,16 @@ void	ft_exec(char *cmd, char **envp)
 		if (access(path, X_OK) == 0)
 		{
 			execve(path, tmp, envp);
+			exit(1);
 		}
 		i++;
 	}
-}
-
-// void	child_process(char **av, int *i, int *fd, char **envp)
-// {
-// 	int	fdi;
-
-// 	if (i[0] == 0)
-// 	{
-// 		fdi = open(av[1], O_RDONLY);
-// 		dup2(fdi, 0);
-// 		dup2(fd[1 + 2 * i[0]], 1);
-// 		close(fdi);
-// 	}
-// 	else if (i[0] == i[1] - 4)
-// 	{
-// 		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-// 		dup2(fd[0 + 2 * i[0]], 0);
-// 		dup2(fdi, 1);
-// 		close(fdi);
-// 	}
-// 	else
-// 	{
-// 		dup2(fd[2 * i[0]], 0);
-// 		dup2(fd[1 + 2 * i[0]], 1);
-// 	}
-// 	close(fd[0 + 2 * i[0]]);
-// 	close(fd[1 + 2 * i[0]]);
-// 	ft_exec(av[i[0] + 2], envp);
-// }
-
-void	ft_dup2(int fd1, int fd2)
-{
-	dup2(fd1, 0);
-	dup2(fd2, 1);
-}
-
-void	ft_close(int *fd)
-{
-	close(fd[0]);
-	close(fd[1]);
+	exit(1);
 }
 
 void	child_process(char **av, int *i, int *fd, char **envp)
 {
+	int 	k = 0;
 	int	fdi;
 
 	if (i[0] == 0)
@@ -96,127 +59,91 @@ void	child_process(char **av, int *i, int *fd, char **envp)
 	}
 	else
 	{
-		if (i[0] % 2 != 0)
-			fdi = 2;
-		dup2(fd[0 + fdi], STDIN_FILENO);
-		dup2(fd[3 - fdi], STDOUT_FILENO);
+		dup2(fdi, STDIN_FILENO);
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[1]);
 	}
-	close(fd[1]);
-	close(fd[0]);
-	close(fd[2]);
-	close(fd[3]);
+		//close(fd[0]);
+		//close(fd[1]);
+		//close(fdi);
 	ft_exec(av[i[0] + 2], envp);
-	exit(0);
 }
 
 int	main(int ac, char **av, char **envp)
 {
-	int		fd[4];
 	pid_t	pid[2];
 	int		i[2];
-	int		ret;
+	int		ret[ac - 3];
+	int		fd[2 * (ac - 4)];
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	int 	k = 0;
+	int	fdi;
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	if (ac < 5)
-		return (0);
-	i[0] = -1;
+		return (1);
+	i[0] = 0;
 	i[1] = ac;
-	if (pipe(fd) < 0)
-		exit(1);
-	if (pipe(fd + 2) < 0)
-		exit(1);
-	while (++i[0] < (ac - 3))
+	//init();
+	//while (i[0] < ac - 4)
+	//{
+	//	if (pipe(fd + 2 * i[0]) < 0)
+	//		exit(1);
+	//	i[0] += 2;
+	//}
+
+	i[0] = -1;
+	while (++i[0] < ac - 3)
 	{
-		// if (pipe(fd) < 0)
-		// 	exit(1);
-		// if (pipe(fd2) < 0)
-		// 	exit(1);
-		pid[i[0]] = fork();
+		if (i[0] < ac - 4)
+		{
+			if (pipe(fd) < 0)
+				exit(1);
+		}
+		pid[i[0]] = fork();		
 		if (pid[i[0]] < 0)
 			exit(1);
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		if (!pid[i[0]])
-			child_process(av, i, fd, envp);
+		{
+			if (i[0] == 0)
+			{
+				fdi = open(av[1], O_RDONLY);
+				dup2(fdi, STDIN_FILENO);
+				dup2(fd[1], STDOUT_FILENO);
+				close(fdi);
+			}
+			else if (i[0] == i[1] - 4)
+			{
+				fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+				dup2(fd[0], STDIN_FILENO);
+				dup2(fdi, STDOUT_FILENO);
+				close(fdi);
+			}
+			else
+			{
+				dup2(fdi, STDIN_FILENO);
+				dup2(fd[1], STDOUT_FILENO);
+				close(fd[1]);
+			}
+			if (i[0])
+				close(fdi);
+			fdi = fd[0];
+		}
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//if (!pid[i[0]])
+			//child_process(av, i, fd, envp);
 		//close(fd[0]);
 		//close(fd[1]);
 	}
 	i[0] = -1;
-	while (++i[0] < 4)
+	while (++i[0] < ac - 4)
 		close(fd[i[0]]);
 	//close(fd[0]);
 	//close(fd[1]);
 	i[0] = -1;
 	while (++i[0] < ac - 3)
-		waitpid(pid[i[0]], &ret, 0);
+		waitpid(pid[i[0]], &ret[i[0]], 0);
 	return (0);
 }
-
-//!------------------------KEEPSAFE------------------------!//
-//void	child_process(char **av, int *i, int *fd, char **envp)
-//{
-//	int	fdi;
-
-//	if (i[0] == 0)
-//	{
-//		fdi = open(av[1], O_RDONLY);
-//		dup2(fdi, 0);
-//		dup2(fd[1], 1);
-//		close(fd[0]);
-//		close(fd[1]);
-//		close(fdi);
-//		ft_exec(av[2], envp);
-//	}
-//	else if (i[0] == i[1] - 4)
-//	{
-//		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0777);
-//		dup2(fd[0], 0);
-//		dup2(fdi, 1);
-//		close(fd[0]);
-//		close(fd[1]);
-//		close(fdi);
-//		ft_exec(av[i[1] - 2], envp);
-//	}
-//	dup2(fd[0], 0);
-//	dup2(fd[1], 1);
-//	close(fd[0]);
-//	close(fd[1]);
-//	ft_exec(av[i[0] + 2], envp);
-//}
-
-//int	main(int ac, char**av, char **envp)
-//{
-//	//int		fd[2][2];
-//	int		fd[2];
-//	pid_t	pid[ac - 3];
-//	int		i[2];
-//	int		ret;
-
-//	if (ac < 5)
-//		return (0);
-//	if (pipe(fd) == -1)
-//		exit(1);
-//	//if (pipe(fd[0]) == -1) //!
-//	//	exit(1);
-//	//if (pipe(fd[1]) == -1)
-//	//	exit(1);			 //!
-//	i[0] = -1;
-//	i[1] = ac;
-//	while (++i[0] < ac - 3)
-//	{
-//		pid[i[0]] = fork();
-//		if (pid[i[0]] < 0)
-//			exit(1);
-//		if (!pid[i[0]])
-//			child_process(av, i, fd, envp);
-//			//child_process(av, i, fd[0], envp); //!
-//	}
-//	close(fd[0]);
-//	close(fd[1]);
-//	//close(fd[0][0]); //!
-//	//close(fd[0][1]);
-//	//close(fd[1][0]);
-//	//close(fd[1][1]); //!
-//	i[0] = -1;
-//	while (++i[0] < ac - 3)
-//		waitpid(pid[i[0]], &ret, 0);
-//	return (0);
-//}
-//! -----------------------KEEPSAFE------------------------!//
