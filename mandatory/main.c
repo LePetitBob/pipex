@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/20 04:23:07 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/12/20 18:55:30 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ void	child_process(char **av, int i, int *fd, char **envp)
 	if (i == 0)
 	{
 		fdi = open(av[1], O_RDONLY);
+		if (fdi < 0)
+			exit(1);
 		dup2(fdi, 0);
 		dup2(fd[1], 1);
 		close(fd[0]);
@@ -50,6 +52,8 @@ void	child_process(char **av, int i, int *fd, char **envp)
 		ft_exec(av[2], envp);
 	}
 	fdi = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fdi < 0)
+		exit(1);
 	dup2(fd[0], 0);
 	dup2(fdi, 1);
 	close(fd[0]);

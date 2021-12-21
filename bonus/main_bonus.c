@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/20 04:22:12 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/12/22 00:55:59 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,70 +43,55 @@ void	ft_dup2(int fdin, int fdout)
 
 void	child_process(char **av, int *i, int *fd, char **envp)
 {
-	int	k;
 	int	fdi;
 
-	k = 0;
-	if (!(i[0] % 2))
-		k = 2;
 	if (i[0] == 0)
 	{
 		fdi = open(av[1], O_RDONLY);
-		//dup2(fdi, STDIN_FILENO);
-		//dup2(fd[1], STDOUT_FILENO);
+		if (fdi < 0)
+			exit(1);
 		ft_dup2(fdi, fd[1]);
 		close(fdi);
 	}
 	else if (i[0] == i[1] - 4)
 	{
 		fdi = open(av[i[1] - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		//dup2(fd[k], STDIN_FILENO);
-		//dup2(fdi, STDOUT_FILENO);
-		ft_dup2(fd[k], fdi);
+		if (fdi < 0)
+			exit(1);
+		ft_dup2(fd[2], fdi);
 		close(fdi);
 	}
 	else
-	{
-		//dup2(fd[0 + k], STDIN_FILENO);
-		//dup2(fd[3 - k], STDOUT_FILENO);
-		ft_dup2(fd[0 + k], fd[3- k]);
-	}
-	close(fd[0]);
-	close(fd[1]);
-	close(fd[2]);
-	close(fd[3]);
+		ft_dup2(fd[2], fd[1]);
+	ft_close_all(fd);
 	ft_exec(av[i[0] + 2], envp);
 }
 
 int	main(int ac, char **av, char **envp)
 {
 	pid_t	pid[4096];
-	int		i[2];
-	int		ret;
-	int		fd[4];
+	int		i[3];
+	int		fd[3];
 
 	if (ac < 5)
 		return (1);
-	i[1] = ac;
-	i[0] = -1;
+	init_i(&i, ac);
+	fd[2] = dup(STDIN_FILENO);
 	while (++i[0] < ac - 3)
 	{
 		if (pipe(fd) < 0)
 			exit(1);
-		if (pipe(fd + 2) < 0)
-			exit(1);
-		pid[i[0]] = fork();		
+		pid[i[0]] = fork();
 		if (pid[i[0]] < 0)
 			exit(1);
 		if (!pid[i[0]])
 			child_process(av, i, fd, envp);
-		close(fd[0]);
-		close(fd[1]);
-		close(fd[2]);
-		close(fd[3]);
+		dup2(fd[0], fd[2]);
+		close_pipe(fd);
 	}
+	close(fd[2]);
 	i[0] = -1;
 	while (++i[0] < ac - 3)
-		waitpid(pid[i[0]], &ret, 0);
+		waitpid(pid[i[0]], &i[2], 0);
 	return (0);
 }
