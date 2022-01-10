@@ -6,13 +6,13 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/22 00:53:24 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/22 00:56:50 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/12/22 04:30:11 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
 
-int	*init_i(int *i, int ac)
+int	*init_i(int i[3], int ac)
 {
 	i[1] = ac;
 	i[0] = -1;
@@ -21,6 +21,7 @@ int	*init_i(int *i, int ac)
 
 void	close_pipe(int fd[2])
 {
+	dup2(fd[0], fd[2]);
 	close(fd[0]);
 	close(fd[1]);
 }

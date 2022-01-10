@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/22 00:55:59 by vduriez          ###   ########.fr       */
+/*   Updated: 2021/12/22 04:30:38 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,8 @@ int	main(int ac, char **av, char **envp)
 
 	if (ac < 5)
 		return (1);
-	init_i(&i, ac);
+	i[0] = -1;
+	i[1] = ac;
 	fd[2] = dup(STDIN_FILENO);
 	while (++i[0] < ac - 3)
 	{
@@ -86,7 +87,6 @@ int	main(int ac, char **av, char **envp)
 			exit(1);
 		if (!pid[i[0]])
 			child_process(av, i, fd, envp);
-		dup2(fd[0], fd[2]);
 		close_pipe(fd);
 	}
 	close(fd[2]);
