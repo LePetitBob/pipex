@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/22 00:53:24 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/22 04:30:11 by vduriez          ###   ########.fr       */
+/*   Updated: 2022/01/11 22:34:44 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	*init_i(int i[3], int ac)
 	return (i);
 }
 
-void	close_pipe(int fd[2])
+void	close_pipe(int fd[3])
 {
 	dup2(fd[0], fd[2]);
 	close(fd[0]);

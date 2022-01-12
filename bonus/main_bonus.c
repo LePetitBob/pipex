@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/22 04:30:38 by vduriez          ###   ########.fr       */
+/*   Updated: 2022/01/11 22:58:05 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,10 @@ void	ft_exec(char *cmd, char **envp)
 	int		i;
 
 	i = 0;
-	while (!ft_strnstr(envp[i], "PATH=", 5))
+	while (ft_strncmp(envp[i], "PATH=", 5) != 0)
 		i++;
+	if (!envp[i])
+		exit(150);
 	paths = ft_split(envp[i] + 5, ':');
 	i = 0;
 	tmp = ft_split(cmd, ' ');
@@ -31,7 +33,10 @@ void	ft_exec(char *cmd, char **envp)
 		if (access(path, X_OK) == 0)
 			execve(path, tmp, envp);
 		i++;
+		free(path);
 	}
+	ft_free(paths);
+	ft_free(tmp);
 	exit(1);
 }
 

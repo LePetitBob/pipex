@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 15:39:40 by vduriez           #+#    #+#             */
-/*   Updated: 2022/01/10 18:35:53 by vduriez          ###   ########.fr       */
+/*   Updated: 2022/01/12 12:59:59 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,10 @@ void	ft_exec(char *cmd, char **envp)
 	int		i;
 
 	i = 0;
-	while (!ft_strnstr(envp[i], "PATH=", 5))
+	while (ft_strncmp(envp[i], "PATH=", 5) != 0)
 		i++;
+	if (!envp[i])
+		exit(150);
 	paths = ft_split(envp[i] + 5, ':');
 	i = 0;
 	tmp = ft_split(cmd, ' ');
@@ -57,14 +59,15 @@ void	child_process(char **av, int i, int *fd, char **envp)
 	if (i == 0)
 	{
 		fdi = open(av[1], O_RDONLY);
-		if (fdi < 0 || check_infile(av[1]))
+		if (fdi < 0)
 			exit(1);
 		dup2(fdi, 0);
 		dup2(fd[1], 1);
 		close(fd[0]);
 		close(fd[1]);
 		close(fdi);
-		ft_exec(av[2], envp);
+		if (envp)
+			ft_exec(av[2], envp);
 	}
 	fdi = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fdi < 0)
@@ -74,20 +77,8 @@ void	child_process(char **av, int i, int *fd, char **envp)
 	close(fd[0]);
 	close(fd[1]);
 	close(fdi);
-	ft_exec(av[3], envp);
-}
-
-int	check_infile(char *infile)
-{
-	int	in;
-
-	in = open(infile, O_RDONLY);
-	if (in < 0 && strcmp(errno, "EACCESS"))
-	{
-		write(2, "Infile does not exist or permission denied\n", 45);
-		return (1);
-	}
-	return (0);
+	if (envp)
+		ft_exec(av[3], envp);
 }
 
 int	main(int ac, char**av, char **envp)

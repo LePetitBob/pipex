@@ -1,37 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strnstr.c                                       :+:      :+:    :+:   */
+/*   ft_strncmp.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/06/16 15:34:14 by vduriez           #+#    #+#             */
-/*   Updated: 2021/12/05 11:07:34 by vduriez          ###   ########.fr       */
+/*   Updated: 2022/01/11 20:24:58 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
 
-char	*ft_strnstr(const char *haystack, const char *needle, size_t len)
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
 	size_t	i;
-	size_t	j;
 
 	i = 0;
-	if (!(needle[0]))
-		return ((char *)haystack);
-	while (haystack[i] && i < len)
-	{
-		j = 0;
-		if (haystack[i] == needle[j])
-		{
-			j++;
-			while (needle[j] && haystack[i + j] == needle[j] && (i + j) < len)
-				j++;
-			if (needle[j] == '\0')
-				return ((char *)&haystack[i]);
-		}
-		i++;
-	}
-	return (0);
+	if (n == 0 || !s1 || !s2)
+		return (0);
+	while (s1[i] && s2[i] && s1[i] == s2[i] && i < n - 1)
+		++i;
+	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
