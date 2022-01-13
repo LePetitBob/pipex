@@ -6,7 +6,7 @@
 /*   By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/22 00:53:24 by vduriez           #+#    #+#             */
-/*   Updated: 2022/01/13 17:11:19 by vduriez          ###   ########.fr       */
+/*   Updated: 2022/01/13 20:50:49 by vduriez          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	ft_exit(int error, char *cmd)
 	else if (error == 126)
 	{
 		ft_putstr(cmd);
-		write(2, "Permission denied or file doesn't exist\n", 41);
+		write(2, " : Permission denied or file doesn't exist\n", 44);
 		exit(127);
 	}
 	else if (error == 127)
