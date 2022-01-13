@@ -6,13 +6,13 @@
 #    By: vduriez <vduriez@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/23 15:42:36 by vduriez           #+#    #+#              #
-#    Updated: 2021/12/22 00:56:23 by vduriez          ###   ########.fr        #
+#    Updated: 2022/01/11 22:37:05 by vduriez          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-CC = clang
+CC = gcc
 
-FLAGS = -Wall -Wextra -Werror -g
+FLAGS = -Wall -Wextra -Werror
 
 NAME = pipex
 
@@ -20,16 +20,16 @@ NAME_BONUS = pipex_bonus
 
 INCLUDES = include/pipex.h
 
-FSANITIZE = -fsanitize=address
+FSANITIZE = -fsanitize=address -fsanitize=undefined -g3
 
 SRCS =			mandatory/ft_split.c			\
 				mandatory/ft_strjoin.c			\
-				mandatory/ft_strnstr.c			\
+				mandatory/ft_strncmp.c			\
 				mandatory/main.c
 
 SRCS_BONUS =	bonus/ft_split.c			\
 				bonus/ft_strjoin.c			\
-				bonus/ft_strnstr.c			\
+				bonus/ft_strncmp.c			\
 				bonus/main_bonus.c			\
 				bonus/ft_norme.c
 
